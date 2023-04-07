@@ -12,6 +12,7 @@ namespace EgyptianWar
     public class Game : MonoBehaviour
     {
         public Text MessageText;
+        public Text CardCount;
 
         protected CardAnimator cardAnimator;
 
@@ -90,6 +91,7 @@ namespace EgyptianWar
             PlayerDrop = GameObject.Find("Canvas/PlayerDrop").GetComponent<Button>();
             PlayerSlap = GameObject.Find("Canvas/PlayerSlap").GetComponent<Button>();
             ToLobby = GameObject.Find("Canvas/Panel/Restart").GetComponent<Button>();
+            CardCount = GameObject.Find("Canvas/Panel/CardCount").GetComponent<Text>();
         }
 
         protected void Start()
@@ -127,42 +129,35 @@ namespace EgyptianWar
             {
                 case GameState.Idle:
                     {
-                        Debug.Log("IDLE");
                         break;
                     }
                 case GameState.GameStarted:
                     {
-                        Debug.Log("GameStarted");
                         OnGameStarted();
                         break;
                     }
                 case GameState.TurnStarted:
                     {
-                        Debug.Log("TurnStarted");
                         OnTurnStarted();
                         break;
                     }
                 case GameState.WaitingForDrop:
                     {
-                        Debug.Log("WaitingForDrop");
                         OnWaitingForDrop();
                         break;
                     }
                 case GameState.TurnDrop:
                     {
-                        Debug.Log("TurnDrop");
                         OnTurnDrop();
                         break;
                     }
                 case GameState.PlacedRoyal:
                     {
-                        Debug.Log("PlacedRoyal");
                         OnPlacedRoyal();
                         break;
                     }
                 case GameState.GameFinished:
                     {
-                        Debug.Log("GameFinished");
                         OnGameFinished();
                         break;
                     }
@@ -204,11 +199,12 @@ namespace EgyptianWar
 
         protected virtual void OnWaitingForDrop()
         {
-            Debug.Log(currentTurnPlayer.PlayerName);
+            CardCount.text = gameDataManager.PlayerCards(localPlayer).Count.ToString();
         }
 
         protected virtual void OnTurnDrop() //player needs to select top card and drop into middle pile, card dropped
         {   
+            CardCount.text = gameDataManager.PlayerCards(localPlayer).Count.ToString();
             byte value = gameDataManager.AddTopCardToPool(currentTurnPlayer, Pool); //working
             cardValue = value;
             gameDataManager.RemoveTopCardFromPlayer(currentTurnPlayer); //working, gives 25 cards
@@ -266,6 +262,7 @@ namespace EgyptianWar
 
         protected virtual void OnPlacedRoyal()
         {
+            CardCount.text = gameDataManager.PlayerCards(localPlayer).Count.ToString();
             SwitchTurn();
             if (currentTurnPlayer == localPlayer)
             {
@@ -406,14 +403,12 @@ namespace EgyptianWar
             botSlapped = true;
             List<byte> poolOfCards = gameDataManager.PoolOfCards();
             if (poolOfCards.Count == 0) { // player already slapped
-                Debug.Log("Darn");
                 if (currentTurnPlayer == localPlayer) {
                     SwitchTurn();
                 }
                 gameState = GameState.TurnStarted;
                 GameFlow();
             } else { // give cards to bot, they slapped
-                Debug.Log("slapped");
                 int iter = poolOfCards.Count;
                 while (iter != 0) {
                     byte card = poolOfCards.ElementAt(0);
